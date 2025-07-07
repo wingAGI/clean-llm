@@ -1,0 +1,49 @@
+hydra:
+  run:
+    dir: ./my_output_dir
+
+root_dir: ${hydra:runtime.cwd}
+
+training:
+  train_data_path: ${root_dir}/data/valid.dat
+  val_data_path: ${root_dir}/data/valid.dat
+  save_path: "checkpoints" # save path for both first train and resume train
+  lr: 0.0005
+  min_lr: 0.0001
+  weight_decay: 0.01
+  batch_size: 64
+  context_length: 256
+  train_steps: 10000
+  clip_grad_norm: 1.0
+  warmup_iters: 500
+  cosine_iters: 5000
+  val_interval: 200
+  val_batches: 20
+  save_interval: 500
+  resume_checkpoint: null   # load checkpoint from current hydra run dir
+
+model:
+  architectures:
+    - Qwen2ForCausalLM
+  attention_dropout: 0.0
+  bos_token_id: 151643
+  eos_token_id: 151645
+  hidden_act: silu
+  hidden_size: 128 # 896
+  initializer_range: 0.02
+  intermediate_size: 384 # 4864
+  max_position_embeddings: 512 # 32768
+  max_window_layers: 21
+  model_type: qwen2
+  num_attention_heads: 8 # 14
+  num_hidden_layers: 8 # 24
+  num_key_value_heads: 2
+  rms_norm_eps: 1e-06
+  rope_theta: 1000000.0
+  sliding_window: 512 # 32768
+  tie_word_embeddings: true
+  torch_dtype: bfloat16
+  transformers_version: 4.43.1
+  use_cache: true
+  use_sliding_window: false
+  vocab_size: 151936

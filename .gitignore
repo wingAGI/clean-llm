@@ -1,2 +1,3 @@
 .venv/
 huggingface_models/
+outputs/

@@ -118,7 +118,12 @@ class Qwen2_5(nn.Module):
 
         return logits, None
 
-
+    @classmethod
+    def from_config(cls, config):   # <class 'omegaconf.dictconfig.DictConfig'>
+        model = cls(config)
+        total_params = sum(p.numel() for p in model.parameters())
+        print(f"Total parameters: {total_params:,}")
+        return model
 
     @classmethod
     def from_pretrained(cls, model_path):
