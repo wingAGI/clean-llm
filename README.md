@@ -13,7 +13,7 @@ This is an LLM learning project inspired by [nanoGPT](https://github.com/karpath
 
 ### Running Qwen2.5
 1. Download models in the `huggingface_models` folder.  
-2. Run `uv run python -m tests.test_qwen2_5` to test.
+2. Run `uv run python -m scripts.test_qwen2_5` to load the open-source weights into your own implementation of the LLM from scratch and generate text.
 
 ### Running DeepseekV2
 To be updated.
@@ -22,7 +22,9 @@ To be updated.
 To be updated.
 
 ## Pretrain
-To be updated.
+1. Download pretrain data in the `data` folder.
+2. Run `uv run python -m scripts.test_pretrain` to pretrain your own LLM from scratch.
+3. Run `uv run python -m scripts.test_eval_pretrain` to evaluate your pretrained LLM.
 
 ## SFT & GRPO
 To be updated.
