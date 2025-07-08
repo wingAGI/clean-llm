@@ -6,6 +6,9 @@ warnings.filterwarnings("ignore")
 
 from clean_llm.models.qwen2_5 import Qwen2_5
 from clean_llm.train.pretrain import train
+from clean_llm.tokenizer.tokenizer import get_custom_tokenizer
+
+
 
 @hydra.main(config_path="configs/", config_name="config")
 def main(cfg: DictConfig):
@@ -18,7 +21,13 @@ def main(cfg: DictConfig):
 
     # model_path = "/Users/hex/workspace2/wingAGI/clean-llm/huggingface_models/Qwen/Qwen2.5-0.5B-Instruct"
     # model = Qwen2_5.from_pretrained(model_path).to(device)
-    model_config, training_config = cfg.model, cfg.training
+    model_config, training_config, tokenizer_config = cfg.model, cfg.training, cfg.tokenizer
+    tokenizer = get_custom_tokenizer(**tokenizer_config)
+    # import pdb; pdb.set_trace()
+    model_config.vocab_size = tokenizer.vocab_size
+    model_config.eos_token_id = tokenizer.eos_token_id
+
+
     model = Qwen2_5.from_config(model_config).to(device)
 
     # import pdb; pdb.set_trace()

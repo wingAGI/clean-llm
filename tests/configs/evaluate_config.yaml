@@ -4,23 +4,13 @@ hydra:
 
 root_dir: ${hydra:runtime.cwd}
 
-training:
-  train_data_path: ${root_dir}/data/train.dat
-  val_data_path: ${root_dir}/data/valid.dat
-  save_path: "checkpoints" # save path for both first train and resume train
-  lr: 0.0005
-  min_lr: 0.0001
-  weight_decay: 0.01
-  batch_size: 64
-  context_length: 256
-  train_steps: 5000
-  clip_grad_norm: 1.0
-  warmup_iters: 500
-  cosine_iters: 5000
-  val_interval: 200
-  val_batches: 20
-  save_interval: 1000
-  resume_checkpoint: null   # load checkpoint from current hydra run dir
+eval:
+  save_path: checkpoints
+  iteration: 5000
+  prompt: Once upon a time, there is a little boy
+  max_new_tokens: 64
+  temperature: 1.0
+  top_k: 50
 
 model:
   architectures:

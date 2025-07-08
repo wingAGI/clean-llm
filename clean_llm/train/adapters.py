@@ -5,8 +5,6 @@ from typing import IO, Any, BinaryIO
 from collections.abc import Iterable
 
 import torch
-from torch import Tensor
-
 import numpy as np
 
 

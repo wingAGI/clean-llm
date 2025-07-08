@@ -4,22 +4,12 @@ import json
 import torch
 import torch.nn.functional as F
 import pathlib
-import argparse
 import numpy as np
 from tqdm import tqdm
 from hydra.core.hydra_config import HydraConfig
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from .adapters import *
-
-def _to_device_and_compile(model):
-    if torch.backends.mps.is_available():
-        device = torch.device("mps")
-    elif torch.cuda.is_available():
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
-    model = model.to(device)
-    return model, device
+from ..utils import _to_device_and_compile
 
 
 
@@ -55,7 +45,6 @@ def train(model, args):
     train_data = get_memmap_dataset(args.train_data_path)
     val_data = get_memmap_dataset(args.val_data_path)
 
-
     # 3. 构建优化器
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
@@ -68,7 +57,8 @@ def train(model, args):
         print(f"Resumed at iteration {start_iter} from path {resume_ckpt_path}")
 
     # 5. 训练loop
-    for iteration in tqdm(range(start_iter, args.train_steps), desc="Training"):
+    pbar = tqdm(range(start_iter, args.train_steps), desc="Training", leave=False)
+    for iteration in pbar:
         model.train()
         x, y = get_batch(train_data, args.batch_size, args.context_length)
         x, y = x.to(device), y.to(device)
@@ -91,6 +81,8 @@ def train(model, args):
             param_group['lr'] = lr
         optimizer.step()
 
+        pbar.set_postfix(loss=loss.item(), lr=lr)
+
         # 验证
         if (iteration+1) % args.val_interval == 0:
             model.eval()
@@ -109,7 +101,7 @@ def train(model, args):
                     if count >= args.val_batches:
                         break
                 val_loss_mean = np.mean(val_losses)
-                print(f"iter {iteration:05d}: VALID loss = {val_loss_mean:.4f}")
+                print(f"iter {iteration+1:05d}: VALID loss = {val_loss_mean:.4f}")
 
         # 保存
         if (iteration+1) % args.save_interval == 0:

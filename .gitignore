@@ -1,3 +1,5 @@
 .venv/
 huggingface_models/
 outputs/
+my_output_dir/
+data/
