@@ -2,4 +2,4 @@
 huggingface_models/
 outputs/
 my_output_dir/
-data/
+data/train.dat
