@@ -4,6 +4,8 @@ This is an LLM learning project inspired by [nanoGPT](https://github.com/karpath
 
 ## News
 
+- [2025.07.08]: Added code for pretraining LLMs from scratch with a custom-trained tokenizer.
+
 - [2025.07.07]: ***nanoQwen***: Added Qwen2.5 implementations from scratch and enabled loading of pretrained models from Huggingface.
 
 
