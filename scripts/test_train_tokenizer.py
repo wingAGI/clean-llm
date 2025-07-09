@@ -1,0 +1,38 @@
+import os
+import pickle
+import pathlib
+
+import hydra
+from omegaconf import DictConfig
+from clean_llm.tokenizer.train import run_train_bpe
+
+
+@hydra.main(config_path="configs", config_name="train_tokenizer")
+def main(cfg: DictConfig):
+    # 用 hydra 方式获取绝对路径
+    ROOT_DIR = hydra.utils.get_original_cwd()
+    data_path = os.path.join(ROOT_DIR, cfg.data_dir, cfg.input_file)
+    tokenizer_dir = os.path.join(ROOT_DIR, cfg.tokenizer.save_dir)
+    vocab_path = os.path.join(tokenizer_dir, cfg.tokenizer.vocab_file)
+    merges_path = os.path.join(tokenizer_dir, cfg.tokenizer.merges_file)
+
+    # 训练
+    vocab, merges = run_train_bpe(
+        input_path=data_path,
+        vocab_size=cfg.tokenizer.vocab_size,
+        special_tokens=cfg.tokenizer.special_tokens
+    )
+
+    os.makedirs(tokenizer_dir, exist_ok=True)
+    with open(vocab_path, "wb") as f:
+        pickle.dump(vocab, f)
+    with open(merges_path, "wb") as f:
+        pickle.dump(merges, f)
+
+    # 统计最长token
+    longest_token = max(vocab.values(), key=len)
+    print("最长token:", longest_token, "长度:", len(longest_token))
+
+
+if __name__ == "__main__":
+    main()
