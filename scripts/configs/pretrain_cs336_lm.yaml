@@ -33,6 +33,6 @@ model:
   rope_theta: 10000.0
 
 tokenizer:
-  vocab_path: ${root_dir}/tokenizer/tinystories_bpe_vocab.pkl
-  merges_path: ${root_dir}/tokenizer/tinystories_bpe_merges.pkl
+  vocab_path: ${root_dir}/tokenizers/TinyStoriesV2-GPT4-train/vocab.pkl
+  merges_path: ${root_dir}/tokenizers/TinyStoriesV2-GPT4-train/merges.pkl
   special_tokens: ["<|endoftext|>"]
