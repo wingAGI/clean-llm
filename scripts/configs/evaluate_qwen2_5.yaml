@@ -1,6 +1,6 @@
-hydra:
-  run:
-    dir: ./my_output_dir
+# hydra:
+#   run:
+#     dir: ./my_output_dir
 
 root_dir: ${hydra:runtime.cwd}
 
@@ -12,6 +12,7 @@ eval:
   temperature: 1.0
   top_k: 50
 
+model_type: qwen2_5
 model:
   architectures:
     - Qwen2ForCausalLM

@@ -1,0 +1,28 @@
+# hydra:
+#   run:
+#     dir: ./my_output_dir
+
+root_dir: ${hydra:runtime.cwd}
+
+eval:
+  save_path: checkpoints
+  iteration: 5000
+  prompt: Once upon a time, there is a little boy
+  max_new_tokens: 64
+  temperature: 1.0
+  top_k: 50
+
+model_type: cs336_lm
+model:
+  vocab_size: 10000
+  context_length: 256
+  d_model: 512
+  num_layers: 4
+  num_heads: 16
+  d_ff: 1344
+  rope_theta: 10000.0
+
+tokenizer:
+  vocab_path: ${root_dir}/tokenizers/TinyStoriesV2-GPT4-train/vocab.pkl
+  merges_path: ${root_dir}/tokenizers/TinyStoriesV2-GPT4-train/merges.pkl
+  special_tokens: ["<|endoftext|>"]

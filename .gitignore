@@ -1,6 +1,7 @@
 .venv/
 **/__pycache__/
 huggingface_models/
+checkpoints/
 outputs/
 my_output_dir/
 mlruns/

@@ -289,7 +289,7 @@ class BasicsTransformerLM(nn.Module):
             # beyond the model's context length
             x = x[:, -self.context_length :] if x.size(1) > self.context_length else x
             # Get the logits from the model
-            logits = self.forward(x)
+            logits, _ = self.forward(x)
             # Take the logits for the next token
             next_token_logits = logits[:, -1]
             # apply temperature scaling
