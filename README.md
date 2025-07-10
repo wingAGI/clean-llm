@@ -1,7 +1,6 @@
-# Clean LLM
 <div align="center">
 
-![logo](assets/logo2.jpg)
+![logo](assets/logo3.jpg)
 
 </div>
 
