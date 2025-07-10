@@ -37,3 +37,8 @@ To be updated.
 
 ## SFT & GRPO
 To be updated.
+
+## Reference
+- [nanoGPT](https://github.com/karpathy/nanoGPT)
+- [Stanford CS336](https://cs336.stanford.edu/)
+- [A fast tokenizer implementation](https://zhuanlan.zhihu.com/p/1920487178846344415)
