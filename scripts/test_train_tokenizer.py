@@ -4,9 +4,10 @@ import hydra
 
 from omegaconf import DictConfig
 from clean_llm.tokenizer.train import run_train_bpe
+from clean_llm.tokenizer.train_fast import run_train_bpe
 
 
-@hydra.main(config_path="configs", config_name="train_tokenizer")
+@hydra.main(config_path="configs", config_name="train_tokenizer", version_base=None)
 def main(cfg: DictConfig):
 
     # 用 hydra 方式获取绝对路径

@@ -12,7 +12,7 @@ from clean_llm.utils import _to_device_and_compile
 
 
 
-@hydra.main(config_path="configs/", config_name="pretrain_qwen2_5")
+@hydra.main(config_path="configs/", config_name="pretrain_qwen2_5", version_base=None)
 def main(cfg: DictConfig):
 
     model_config, training_config, tokenizer_config = cfg.model, cfg.training, cfg.tokenizer

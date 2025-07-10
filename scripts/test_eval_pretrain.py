@@ -11,7 +11,7 @@ from clean_llm.models.qwen2_5 import Qwen2_5
 from clean_llm.tokenizer.tokenizer import get_custom_tokenizer
 from clean_llm.utils import _to_device_and_compile
 
-@hydra.main(config_path="configs", config_name="evaluate_config")
+@hydra.main(config_path="configs", config_name="evaluate_config", version_base=None)
 def main(cfg: DictConfig):
     if torch.cuda.is_available():
         device = "cuda"
