@@ -29,7 +29,7 @@ def pre_tokenize_and_count(
     else:
         sub_chunks = [chunk]
 
-    for sub_chunk in sub_chunks:
+    for sub_chunk in tqdm(sub_chunks, desc="Pre-tokenizing subchunks"):
         if not sub_chunk:
             continue
 
@@ -85,24 +85,10 @@ def run_train_bpe(
     input_path: str | os.PathLike,
     vocab_size: int,
     special_tokens: list[str],
-    num_chunks: int = 8,
+    num_chunks: int = 4,
     num_processes: int = None,
     **kwargs,
 ) -> tuple[dict[int, bytes], list[tuple[bytes, bytes]]]:
-    
-
-# def train_bbpe(
-#     input_path: Union[str, os.PathLike],
-#     vocab_size: int,
-#     special_tokens: List[str],
-#     num_chunks: int = 8,
-#     num_processes: int = None,
-#     **kwargs,
-# ) -> Tuple[Dict[int, bytes], List[Tuple[bytes, bytes]]]:
-    """
-    Train Byte-level BPE from a file, handling special tokens with multiprocessing.
-    Returns the vocabulary and merges.
-    """
     before_pretokenization_time = time.time()
 
     # 1. Set up initial byte vocab and special tokens
@@ -164,7 +150,7 @@ def run_train_bpe(
         )
         results_iterator = pool.imap_unordered(pre_tokenize_and_count, chunk_args)
         for chunk_counter in tqdm(
-            results_iterator, total=len(chunk_args), desc="Processing chunks"
+            results_iterator, total=len(chunk_args), desc="Processing chunks", leave=True
         ):
             all_word_freqs.update(chunk_counter)
 

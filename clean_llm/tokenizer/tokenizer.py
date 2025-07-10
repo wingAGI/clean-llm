@@ -1,10 +1,11 @@
-import regex as re
 import pickle
+import concurrent.futures
+import regex as re
+import numpy as np
+from tqdm import tqdm
 from typing import Iterable
-
-
 from .utils import to_bytes_tuple, PAT
-
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 class Tokenizer:
     def __init__(
@@ -191,8 +192,6 @@ class Tokenizer:
         return word
 
 
-
-
 def get_custom_tokenizer(vocab_path, 
                          merges_path, 
                          special_tokens: list[str] = ["<|endoftext|>"]):
@@ -208,3 +207,70 @@ def get_custom_tokenizer(vocab_path,
     )
 
     return tokenizer
+
+
+def encode_txt_as_array_slow(tokenizer, path_to_txt, save_path):
+    with open(path_to_txt, 'r') as f:
+        num_lines = sum(1 for _ in f)
+
+    # 第一步：统计总token数（需要遍历一遍）
+    total_tokens = 0
+    with open(path_to_txt, 'r') as f:
+        for line in tqdm(f, total=num_lines, desc="Counting tokens"):
+            total_tokens += len(tokenizer.encode(line))
+
+    # 第二步：创建memmap
+    dtype = np.int32
+    tokens_mm = np.memmap(save_path, dtype=dtype, mode='w+', shape=(total_tokens,))
+
+    # 第三步：再次遍历写入
+    pos = 0
+    with open(path_to_txt, 'r') as f:
+        for line in tqdm(f, total=num_lines, desc="Tokenizing"):
+            ids = tokenizer.encode(line)
+            n = len(ids)
+            tokens_mm[pos:pos+n] = ids
+            pos += n
+
+    tokens_mm.flush()
+
+
+
+def batch_tokenize(batch, tokenizer):
+    out = []
+    for line in batch:
+        out.extend(tokenizer.encode(line))
+    return np.array(out, dtype=np.int32)
+
+def encode_txt_as_array(tokenizer, path_to_txt, save_path, batch_size=4096, n_workers=8):
+    # 1.分batch
+    batches = []
+    with open(path_to_txt) as f:
+        batch = []
+        for line in f:
+            batch.append(line)
+            if len(batch) == batch_size:
+                batches.append(batch)
+                batch = []
+        if batch:
+            batches.append(batch)
+    
+    total_tokens = 0
+    results = []
+    # 2.多进程tokenize
+    with ProcessPoolExecutor(max_workers=n_workers) as exe:
+        futures = []
+        for batch in batches:
+            futures.append(exe.submit(batch_tokenize, batch, tokenizer))
+        for fut in tqdm(as_completed(futures), total=len(futures)):
+            arr = fut.result()
+            results.append(arr)
+            total_tokens += arr.shape[0]
+    
+    # 3.写memmap
+    tokens_mm = np.memmap(save_path, dtype=np.int32, mode='w+', shape=(total_tokens,))
+    pos = 0
+    for arr in results:
+        tokens_mm[pos:pos+arr.shape[0]] = arr
+        pos += arr.shape[0]
+    tokens_mm.flush()

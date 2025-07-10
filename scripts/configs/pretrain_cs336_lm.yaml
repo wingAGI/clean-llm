@@ -17,7 +17,7 @@ training:
   clip_grad_norm: 1.0
   warmup_iters: 500
   cosine_iters: 5000
-  val_interval: 200
+  val_interval: 100
   val_batches: 20
   save_interval: 1000
   resume_checkpoint: null   # load checkpoint from current hydra run dir
