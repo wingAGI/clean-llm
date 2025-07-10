@@ -9,6 +9,9 @@ This is an LLM learning project inspired by [nanoGPT](https://github.com/karpath
 
 - [2025.07.07]: ***nanoQwen***: Added Qwen2.5 implementations from scratch and enabled loading of pretrained models from Huggingface.
 
+## Train CS336 LM
+![cs336_lm_pretrain](assets/pretrain_tinystories_loss.png)
+
 
 ## Implement LLMs from Scratch
 
@@ -24,7 +27,7 @@ To be updated.
 1. Download the training data and place it in the `data/txt` folder.
 2. Edit the configuration file at `scripts/configs/train_tokenizer.yaml` as needed.
 3. Run `uv run python -m scripts.test_train_tokenizer` to start training your tokenizer from scratch.
-4. The resulting tokenizer files will be saved in the `tokenizer_dir` directory you specified in the config file.
+4. The resulting tokenizer files will be saved in the directory you specified as `tokenizer_dir` in the config file.
 
 
 ## Pretrain Data Cleaning
