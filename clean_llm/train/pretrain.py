@@ -1,6 +1,6 @@
 import os
 import sys
-import json
+import mlflow
 import torch
 import torch.nn.functional as F
 import pathlib
@@ -9,7 +9,6 @@ from tqdm import tqdm
 from hydra.core.hydra_config import HydraConfig
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from .adapters import *
-from ..utils import _to_device_and_compile
 
 
 
@@ -35,10 +34,7 @@ def memmap_val_iterator(memmap_arr, batch_size, context_length):
 
 
 
-def train(model, args):
-    # 1. 加载模型
-    model, device = _to_device_and_compile(model)
-    # import pdb; pdb.set_trace()
+def train(model, device, args):
     os.makedirs(args.save_path, exist_ok=True)
 
     # 2. 加载数据集
@@ -57,6 +53,7 @@ def train(model, args):
         print(f"Resumed at iteration {start_iter} from path {resume_ckpt_path}")
 
     # 5. 训练loop
+
     pbar = tqdm(range(start_iter, args.train_steps), desc="Training", leave=False)
     for iteration in pbar:
         model.train()
@@ -82,6 +79,8 @@ def train(model, args):
         optimizer.step()
 
         pbar.set_postfix(loss=loss.item(), lr=lr)
+        mlflow.log_metric("loss", loss.item(), step=iteration)
+        mlflow.log_metric("lr", lr, step=iteration)
 
         # 验证
         if (iteration+1) % args.val_interval == 0:
@@ -101,10 +100,15 @@ def train(model, args):
                     if count >= args.val_batches:
                         break
                 val_loss_mean = np.mean(val_losses)
+                mlflow.log_metric("val_loss", val_loss_mean, step=iteration)
                 print(f"iter {iteration+1:05d}: VALID loss = {val_loss_mean:.4f}")
+                
 
         # 保存
         if (iteration+1) % args.save_interval == 0:
             ckpt_name = os.path.join(args.save_path, f"ckpt_iter{iteration+1}.pt")
             run_save_checkpoint(model, optimizer, iteration+1, ckpt_name)
             print(f"Checkpoint saved to {ckpt_name}")
+
+
+    mlflow.end_run()
