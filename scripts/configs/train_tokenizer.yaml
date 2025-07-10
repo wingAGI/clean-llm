@@ -4,9 +4,9 @@
 
 root_dir: ${hydra:runtime.cwd}
 
-input_path: ${root_dir}/data/txt/TinyStoriesV2-GPT4-valid.txt
+input_path: ${root_dir}/data/txt/TinyStoriesV2-GPT4-valid.txt # your txt data
 
-tokenizer_dir: ${root_dir}/tokenizers/TinyStoriesV2-GPT4-valid/
+tokenizer_dir: ${root_dir}/tokenizers/TinyStoriesV2-GPT4-valid/ # save path for tokenizer
 vocab_path: ${tokenizer_dir}/vocab.pkl
 merges_path: ${tokenizer_dir}/merges.pkl
 
