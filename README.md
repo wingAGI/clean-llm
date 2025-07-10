@@ -3,6 +3,7 @@ This is an LLM learning project inspired by [nanoGPT](https://github.com/karpath
 
 
 ## News
+- [2025.07.10]: Added code for training tokenizers from scratch.
 
 - [2025.07.08]: Added code for pretraining LLMs from scratch with a custom-trained tokenizer.
 
