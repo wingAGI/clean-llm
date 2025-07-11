@@ -22,6 +22,8 @@ This is an LLM learning project inspired by [nanoGPT](https://github.com/karpath
 
 
 ## News
+- [2023.07.12]Added [A comprehensive guide to CS336 assignment 1](./guide.md)。
+
 - [2025.07.10]: Added code for training tokenizers from scratch.
 
 - [2025.07.08]: Added code for pretraining LLMs from scratch with a custom-trained tokenizer.

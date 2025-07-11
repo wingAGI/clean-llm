@@ -21,6 +21,7 @@
 这是一个受 [nanoGPT](https://github.com/karpathy/nanoGPT) 和 [Stanford CS336](https://github.com/stanford-cs336) 启发的 LLM 学习项目。致力于从零实现整个大模型训练流程，包括预训练数据清洗、模型预训练、SFT、GRPO 等。
 
 ## News
+- [2023.07.12]：新增了[CS336作业1的完整复现教程](./guide.md)。
 - [2025.07.10]：新增了从零训练分词器的代码。
 - [2025.07.08]：新增了使用自训练分词器进行从零大模型预训练的代码。
 - [2025.07.07]：***nanoQwen***：从零实现了 Qwen2.5 并支持从 Huggingface 加载预训练模型。
