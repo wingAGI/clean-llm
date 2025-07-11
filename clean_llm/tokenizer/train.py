@@ -4,7 +4,7 @@ import os
 import regex as re
 from tqdm import tqdm
 from collections import defaultdict
-from typing import Dict, Tuple
+from typing import Dict
 
 from .utils import to_bytes_tuple, PAT
 
@@ -50,11 +50,6 @@ def run_train_bpe(
     # Step 2: Pre-tokenization
     pre_tokens_cnt = defaultdict(int)
 
-    def to_bytes_tuple(word: str) -> Tuple[bytes]:
-        l = list(tuple(word.encode("utf-8")))
-        l = [bytes([x]) for x in l]
-        return tuple(l)
-
     with open(input_path, "r", encoding="utf-8") as f:
         text = f.read()
     
@@ -67,17 +62,11 @@ def run_train_bpe(
 
     # Step 3: Compute BPE Merges
     merges = []
-
-    # while len(vocab) < vocab_size:
-    
-
     init_vocab_size = len(vocab)
     num_merges = vocab_size - init_vocab_size
 
     # tqdm接管循环
     for _ in tqdm(range(num_merges), desc="BPE merges"):
-        # if len(vocab) >= vocab_size:
-        #     break
         pair_counts = defaultdict(int)
 
         # Count all adjacent byte pairs
@@ -87,7 +76,7 @@ def run_train_bpe(
                 pair_counts[pair] += cnt
 
         if not pair_counts:
-            break  # No more pairs to merge
+            break                                   # No more pairs to merge
 
         # Find the most frequent pair(s)
         max_count = max(pair_counts.values())

@@ -1,16 +1,13 @@
 from __future__ import annotations
-
-import functools
-import json
-import logging
-import math
 import os
-from einops import rearrange, einsum
+import json
 import einx
-
+import math
 import torch
+import logging
 import torch.nn as nn
 from torch import Tensor
+from einops import rearrange, einsum
 from jaxtyping import Float, Bool, Int
 
 

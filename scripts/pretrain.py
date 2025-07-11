@@ -1,7 +1,6 @@
 import hydra
 import mlflow
 from omegaconf import DictConfig
-import torch
 import warnings
 warnings.filterwarnings("ignore")
 

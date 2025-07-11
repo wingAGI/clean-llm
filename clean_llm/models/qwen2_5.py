@@ -4,8 +4,10 @@ import json
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 from types import SimpleNamespace
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM
+
 from .basics import RMSNorm, SwiGLU, apply_rotary_pos_emb, _compute_rope_params, repeat
 
 

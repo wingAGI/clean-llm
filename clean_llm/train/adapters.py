@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import os
-from typing import IO, Any, BinaryIO
-from collections.abc import Iterable
-
 import torch
 import numpy as np
+from typing import IO, BinaryIO
+from collections.abc import Iterable
 
 
 

@@ -1,11 +1,12 @@
 import pickle
-import concurrent.futures
 import regex as re
 import numpy as np
+
 from tqdm import tqdm
 from typing import Iterable
-from .utils import to_bytes_tuple, PAT
 from concurrent.futures import ProcessPoolExecutor, as_completed
+
+from .utils import to_bytes_tuple, PAT
 
 class Tokenizer:
     def __init__(

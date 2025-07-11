@@ -1,12 +1,15 @@
 import os
 import re
 import time
+import heapq
+
+from collections import defaultdict
 from collections import Counter
 from multiprocessing import Pool, cpu_count
 from tqdm import tqdm
-from typing import Dict, List, Tuple, Union, Pattern
-import heapq
-from collections import defaultdict
+from typing import Dict, Tuple, Union, Pattern
+
+
 
 PAT_COMPILED = re.compile(r"\S+")
 

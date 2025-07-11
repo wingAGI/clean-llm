@@ -3,8 +3,8 @@ import pickle
 import hydra
 
 from omegaconf import DictConfig
-# from clean_llm.tokenizer.train import run_train_bpe
-from clean_llm.tokenizer.train_fast import run_train_bpe
+# from clean_llm.tokenizer.train import run_train_bpe       # slow version
+from clean_llm.tokenizer.train_fast import run_train_bpe    # fast version
 
 
 @hydra.main(config_path="configs", config_name="train_tokenizer", version_base=None)

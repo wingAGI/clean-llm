@@ -109,6 +109,3 @@ def train(model, device, args):
             ckpt_name = os.path.join(args.save_path, f"ckpt_iter{iteration+1}.pt")
             run_save_checkpoint(model, optimizer, iteration+1, ckpt_name)
             print(f"Checkpoint saved to {ckpt_name}")
-
-
-    mlflow.end_run()

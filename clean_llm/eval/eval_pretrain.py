@@ -1,11 +1,4 @@
-import os
-import sys
-import json
 import torch
-import pickle
-import pathlib
-import hydra
-from omegaconf import DictConfig
 
 def evaluate(
     model,
