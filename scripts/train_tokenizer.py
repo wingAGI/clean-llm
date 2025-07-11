@@ -7,7 +7,7 @@ from omegaconf import DictConfig
 from clean_llm.tokenizer.train_fast import run_train_bpe    # fast version
 
 
-@hydra.main(config_path="configs", config_name="train_tokenizer", version_base=None)
+@hydra.main(config_path="configs", config_name="tokenizer", version_base=None)
 def main(cfg: DictConfig):
     vocab, merges = run_train_bpe(
         input_path=cfg.input_path,

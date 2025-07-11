@@ -245,6 +245,7 @@ def batch_tokenize(batch, tokenizer):
 
 def encode_txt_as_array(tokenizer, path_to_txt, save_path, batch_size=4096, n_workers=8):
     # 1.分batch
+    
     batches = []
     with open(path_to_txt) as f:
         batch = []

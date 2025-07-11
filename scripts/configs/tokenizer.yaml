@@ -1,0 +1,22 @@
+# hydra:
+#   run:
+#     dir: ./my_output_dir  # save outputs to custom dir
+
+root_dir: ${hydra:runtime.cwd}  # 运行代码的根目录
+
+train_txt_path: ${root_dir}/data/txt/TinyStoriesV2-GPT4-train.txt
+valid_txt_path: ${root_dir}/data/txt/TinyStoriesV2-GPT4-valid.txt
+input_path: ${train_txt_path}   # txt data for training tokenizer, change as needed
+train_dat_path: ${root_dir}/data/dat/train.dat
+valid_dat_path: ${root_dir}/data/dat/valid.dat
+
+tokenizer_dir: ${root_dir}/tokenizers/TinyStoriesV2-GPT4-train/ # save path for tokenizer
+vocab_path: ${tokenizer_dir}/vocab.pkl
+merges_path: ${tokenizer_dir}/merges.pkl
+
+vocab_size: 10_000
+special_tokens: ["<|endoftext|>"]
+
+# encode config
+batch_size: 10000 # 4096
+n_workers: 20 # 8
