@@ -18,7 +18,7 @@
 
 </div>
 
-这是一个受 [nanoGPT](https://github.com/karpathy/nanoGPT) 和 [Stanford CS336](https://github.com/stanford-cs336) 启发的 LLM 学习项目。致力于从零实现整个大模型训练流程，包括预训练数据清洗、模型预训练、SFT、GRPO 等。
+这是一个受 [nanoGPT](https://github.com/karpathy/nanoGPT) 和 [Stanford CS336](https://github.com/stanford-cs336) 启发的 LLM 学习项目。致力于从零实现整个大模型训练流程，包括Tokenizer的训练、数据清洗、模型预训练、SFT、GRPO 等。
 
 ## News
 - [2023.07.12]：新增了[CS336作业1的完整复现教程](./guide.md)。

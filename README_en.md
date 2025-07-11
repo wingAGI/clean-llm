@@ -18,7 +18,7 @@
 
 </div>
 
-This is an LLM learning project inspired by [nanoGPT](https://github.com/karpathy/nanoGPT) and [Stanford CS336](https://github.com/stanford-cs336). It is dedicated to implementing the entire LLM training pipeline from scratch, including pre-training data cleaning, model pre-training, SFT, GRPO, and more.
+This is an LLM learning project inspired by [nanoGPT](https://github.com/karpathy/nanoGPT) and [Stanford CS336](https://github.com/stanford-cs336). It is dedicated to implementing the entire LLM training pipeline from scratch, including training of tokenizer, data cleaning, model pre-training, SFT, GRPO, and more.
 
 
 ## News
