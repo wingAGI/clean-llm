@@ -4,13 +4,21 @@
 
 root_dir: ${hydra:runtime.cwd}  # 运行代码的根目录
 
-train_txt_path: ${root_dir}/data/txt/TinyStoriesV2-GPT4-train.txt
-valid_txt_path: ${root_dir}/data/txt/TinyStoriesV2-GPT4-valid.txt
-input_path: ${train_txt_path}   # txt data for training tokenizer, change as needed
-train_dat_path: ${root_dir}/data/dat/train.dat
-valid_dat_path: ${root_dir}/data/dat/valid.dat
 
-tokenizer_dir: ${root_dir}/tokenizers/TinyStoriesV2-GPT4-train/ # save path for tokenizer
+dataset_name: TinyStories     # `TinyStories` or `owt`, change as needed
+dataset_split: train          # `train` or `valid`, change as needed
+
+data_dir: ${root_dir}/data/${dataset_name}
+txt_dir: ${data_dir}/txt
+dat_dir: ${data_dir}/dat
+train_txt_path: ${txt_dir}/train.txt
+valid_txt_path: ${txt_dir}/valid.txt
+
+input_path: ${txt_dir}/${dataset_split}.txt   # txt data for training tokenizer
+train_dat_path: ${dat_dir}/train.dat
+valid_dat_path: ${dat_dir}/valid.dat
+
+tokenizer_dir: ${root_dir}/tokenizers/${dataset_name}_${dataset_split}/ # save path for tokenizer
 vocab_path: ${tokenizer_dir}/vocab.pkl
 merges_path: ${tokenizer_dir}/merges.pkl
 

@@ -5,5 +5,6 @@ checkpoints/
 outputs/
 my_output_dir/
 mlruns/
-data/dat/train.dat
-data/txt/TinyStoriesV2-GPT4-train.txt
+data/owt/
+data/TinyStories/
+tokenizers/

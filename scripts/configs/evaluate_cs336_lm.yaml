@@ -22,7 +22,10 @@ model:
   d_ff: 1344
   rope_theta: 10000.0
 
+dataset_name: TinyStories     # `TinyStories` or `owt`, change as needed
+dataset_split: train          # `train` or `valid`, change as needed
+tokenizer_dir: ${root_dir}/tokenizers/${dataset_name}_${dataset_split}/ # save path for tokenizer
 tokenizer:
-  vocab_path: ${root_dir}/tokenizers/TinyStoriesV2-GPT4-train/vocab.pkl
-  merges_path: ${root_dir}/tokenizers/TinyStoriesV2-GPT4-train/merges.pkl
+  vocab_path: ${tokenizer_dir}/vocab.pkl
+  merges_path: ${tokenizer_dir}/merges.pkl
   special_tokens: ["<|endoftext|>"]

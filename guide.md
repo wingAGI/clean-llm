@@ -11,24 +11,24 @@ cd clean-llm
 ```
 ## 3. 下载预训练数据
 ```bash
-cd data/txt
+cd data
 bash download_ts.sh  # 下载TinyStories数据集（较小），默认配置下使用该数据集
 bash download_owt.sh # 下载OpenWebText数据集（较大），如果你需要的话
 ```
 ## 4. [可选] 修改Tokenizer的配置文件
-根据你的需要修改训练Tokenizer的配置文件`scripts/configs/tokenizer.yaml`。  
-默认情况下，它将使用TinyStories数据集的训练集进行训练，并将得到的Tokenizer保存到`tokenizers/TinyStoriesV2-GPT4-train/`目录中。
+根据你的需要修改训练Tokenizer的配置文件`scripts/configs/tokenizer.yaml`中的`dataset_name`和`dataset_split`字段。
+默认情况下，它将使用TinyStories数据集的训练集进行训练，并将得到的Tokenizer保存到`tokenizers/TinyStories_train/`目录中。
 ## 5. 训练Tokenizer
 ```bash
-cd ../..
+cd ..
 uv run python -m scripts.train_tokenizer
 ```
-运行后，`uv`会自动创建虚拟环境并安装所需的依赖项，然后运行训练脚本。
+运行后，`uv`会自动创建虚拟环境并安装所需的依赖项，然后运行训练Tokenizer的脚本。
 ## 6. 将文本数据编码成Token并保存，以便后续训练LLM
 ```bash
 uv run python -m scripts.tokenize
 ```
-运行后，训练集和验证集都会被编码，并保存到`data/dat/`目录下。
+默认情况下，会编码TinyStories数据集的训练集和验证集，，并保存到`data/TinyStories/dat/`目录下。
 ## 7. 开始预训练
 ```bash
 uv run python -m scripts.pretrain

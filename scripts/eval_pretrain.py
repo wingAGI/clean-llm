@@ -10,11 +10,10 @@ from clean_llm.utils import _to_device_and_compile
 
 @hydra.main(config_path="configs", config_name="evaluate_cs336_lm", version_base=None)
 def main(cfg: DictConfig):
-
     model_config, eval_config, tokenizer_config = cfg.model, cfg.eval, cfg.tokenizer
+    tokenizer = get_custom_tokenizer(**tokenizer_config)
 
     if cfg.model_type == "qwen2_5":
-        tokenizer = get_custom_tokenizer(**tokenizer_config)
         model_config.vocab_size = tokenizer.vocab_size
         model_config.eos_token_id = tokenizer.eos_token_id
         model = Qwen2_5.from_config(model_config)
