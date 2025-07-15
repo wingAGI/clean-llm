@@ -52,7 +52,7 @@ model:
 ## only used for pretrain Qwen
 dataset_split: train          # `train` or `valid`, change as needed
 tokenizer:
-  tokenizer_dir: ${root_dir}/tokenizers/${dataset_name}_${dataset_split}/ # save path for tokenizer
+  tokenizer_dir: ${root_dir}/tokenizers/${dataset_fname}_${dataset_split}/ # save path for tokenizer
   vocab_path: ${tokenizer_dir}/vocab.pkl
   merges_path: ${tokenizer_dir}/merges.pkl
   special_tokens: ["<|endoftext|>"]

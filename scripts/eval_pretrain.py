@@ -12,6 +12,7 @@ from clean_llm.utils import _to_device_and_compile
 def main(cfg: DictConfig):
     model_config, eval_config, tokenizer_config = cfg.model, cfg.eval, cfg.tokenizer
     tokenizer = get_custom_tokenizer(**tokenizer_config)
+    print(tokenizer.vocab_size)
 
     if cfg.model_type == "qwen2_5":
         model_config.vocab_size = tokenizer.vocab_size

@@ -5,7 +5,7 @@
 root_dir: ${hydra:runtime.cwd}  # 运行代码的根目录
 
 
-dataset_name: TinyStories     # `TinyStories` or `owt`, change as needed
+dataset_name: owt     # `TinyStories` or `owt`, change as needed
 dataset_split: train          # `train` or `valid`, change as needed
 
 data_dir: ${root_dir}/data/${dataset_name}
@@ -22,9 +22,20 @@ tokenizer_dir: ${root_dir}/tokenizers/${dataset_name}_${dataset_split}/ # save p
 vocab_path: ${tokenizer_dir}/vocab.pkl
 merges_path: ${tokenizer_dir}/merges.pkl
 
-vocab_size: 10_000
+
+vocab_size_map:
+  TinyStories: 10_000
+  owt: 32_000
+
+# 根据 dataset_name 动态设置 vocab_size
+vocab_size: ${vocab_size_map.${dataset_name}}
 special_tokens: ["<|endoftext|>"]
+
+# train tokenizer config
+num_chunks: 32
+num_processes: 8
+
 
 # encode config
 batch_size: 10000 # 4096
-n_workers: 20 # 8
+n_workers: 8 # 8

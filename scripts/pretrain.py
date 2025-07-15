@@ -15,7 +15,7 @@ from clean_llm.utils import _to_device_and_compile, log_params_from_omegaconf_di
 
 @hydra.main(config_path="configs/", config_name="pretrain_cs336_lm", version_base=None)
 def main(cfg: DictConfig):
-    mlflow.set_experiment("exp_name")
+    mlflow.set_experiment(cfg.exp_name)
     mlflow.start_run()
 
     if cfg.model_type == "qwen2_5":

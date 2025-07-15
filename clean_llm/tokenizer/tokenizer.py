@@ -1,3 +1,4 @@
+import os
 import pickle
 import regex as re
 import numpy as np
@@ -264,12 +265,13 @@ def encode_txt_as_array(tokenizer, path_to_txt, save_path, batch_size=4096, n_wo
         futures = []
         for batch in batches:
             futures.append(exe.submit(batch_tokenize, batch, tokenizer))
-        for fut in tqdm(as_completed(futures), total=len(futures)):
+        for fut in tqdm(as_completed(futures), total=len(futures), desc="Tokenizing"):
             arr = fut.result()
             results.append(arr)
             total_tokens += arr.shape[0]
     
     # 3.写memmap
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     tokens_mm = np.memmap(save_path, dtype=np.int32, mode='w+', shape=(total_tokens,))
     pos = 0
     for arr in results:

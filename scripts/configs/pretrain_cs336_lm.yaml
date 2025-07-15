@@ -4,15 +4,15 @@
 
 root_dir: ${hydra:runtime.cwd}
 
-
-dataset_name: TinyStories     # `TinyStories` or `owt`, change as needed
+exp_name: cs336_lm_owt
+dataset_name: owt     # `TinyStories` or `owt`, change as needed
 dat_dir: ${root_dir}/data/${dataset_name}/dat
 
 training:
   train_data_path: ${dat_dir}/train.dat
   val_data_path: ${dat_dir}/valid.dat
 
-  save_path: "checkpoints" # save path for both first train and resume train
+  save_path: "checkpoints/${exp_name}" # save path for both first train and resume train
   lr: 0.0005
   min_lr: 0.0001
   weight_decay: 0.01
@@ -29,7 +29,7 @@ training:
 
 model_type: cs336_lm
 model:
-  vocab_size: 10000
+  vocab_size: 32000
   context_length: 256
   d_model: 512
   num_layers: 4

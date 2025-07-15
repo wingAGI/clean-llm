@@ -12,7 +12,9 @@ def main(cfg: DictConfig):
     vocab, merges = run_train_bpe(
         input_path=cfg.input_path,
         vocab_size=cfg.vocab_size,
-        special_tokens=cfg.special_tokens
+        special_tokens=cfg.special_tokens,
+        num_chunks=cfg.num_chunks,
+        num_processes=cfg.num_processes
     )
 
     os.makedirs(cfg.tokenizer_dir, exist_ok=True)

@@ -1,0 +1,2 @@
+model_path: huggingface_models/Qwen/Qwen2.5-Math-1.5B
+dataset_path: "data_sft/openai/gsm8k"

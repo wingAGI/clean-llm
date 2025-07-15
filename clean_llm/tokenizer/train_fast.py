@@ -163,7 +163,7 @@ def run_train_bpe(
 
 
     pair_to_nodes = defaultdict(set)
-    for word_tuple, count in all_word_freqs.items():
+    for word_tuple, count in tqdm(all_word_freqs.items(), desc="Building", leave=True):
         if len(word_tuple) < 2:
             continue
 
@@ -183,7 +183,7 @@ def run_train_bpe(
 
 
     pair_freqs = Counter()
-    for pair, nodes in pair_to_nodes.items():
+    for pair, nodes in tqdm(pair_to_nodes.items(), desc="Counting pairs", leave=True):
         # 某个 pair 的出现次数 = 其所有节点所对应 word 的词频累加
         pair_freqs[pair] = sum(node.word_freq['count'] for node in nodes)
 
