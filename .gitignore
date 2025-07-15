@@ -2,6 +2,7 @@
 **/__pycache__/
 huggingface_models/
 checkpoints/
+checkpoints_sft/
 outputs/
 my_output_dir/
 mlruns/

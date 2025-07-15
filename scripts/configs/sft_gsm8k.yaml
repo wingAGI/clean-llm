@@ -1,2 +1,11 @@
-model_path: huggingface_models/Qwen/Qwen2.5-Math-1.5B
+model_path: huggingface_models/Qwen/Qwen3-0.6B # Qwen2.5-Math-1.5B
 dataset_path: "data_sft/openai/gsm8k"
+micro_batch_size: 1
+gradient_accumulation_steps: 1
+num_epochs: 1
+learning_rate: 2e-5
+weight_decay: 0.01
+eval_steps: 1
+save_steps: 1
+output_dir: checkpoints_sft/
+mlflow_project: sft-gsm8k

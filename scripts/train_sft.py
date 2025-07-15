@@ -13,8 +13,7 @@ from clean_llm.train.sft import run_sft_microbatch_train_step
 def main(cfg: DictConfig):
     model = AutoModelForCausalLM.from_pretrained(
     cfg.model_path,
-    torch_dtype=torch.bfloat16,
-    # attn_implementation="flash_attention_2",
+    torch_dtype=torch.bfloat16
     )
     tokenizer = AutoTokenizer.from_pretrained(cfg.model_path)
     dataset = load_dataset(cfg.dataset_path, 'main')
@@ -23,6 +22,8 @@ def main(cfg: DictConfig):
     train_output_strs = [example['answer'] for example in dataset['train']]
     test_prompt_strs = [example['question'] for example in dataset['test']]
     test_output_strs = [example['answer'] for example in dataset['test']]
+    
+    print(f"Num of train examples = {len(train_prompt_strs)}")
     
     
     train_prompt_strs = train_prompt_strs[:3]
