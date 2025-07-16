@@ -7,7 +7,6 @@ import pathlib
 import numpy as np
 from tqdm import tqdm
 from hydra.core.hydra_config import HydraConfig
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from .adapters import *
 
 

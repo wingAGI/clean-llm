@@ -1,14 +1,142 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Callable, Literal
-
+import re
 import torch
-from torch import Tensor
 import torch.nn.functional as F
 import numpy as np
+import pandas as pd
+
+from typing import Any, Callable, Literal, Dict, List
+from torch import Tensor
 from torch.utils.data import Dataset
-from transformers import PreTrainedTokenizerBase
+from vllm.model_executor import set_random_seed as vllm_set_random_seed
+from vllm import LLM, SamplingParams
+from unittest.mock import patch
+from transformers import PreTrainedModel, AutoTokenizer, PreTrainedTokenizerBase
+
+
+def init_vllm(model_id: str, device: str, seed: int, gpu_memory_utilization: float = 0.85):
+    """
+    初始化 vLLM LLM（大语言模型），可选择设备及显存利用率，在推理时与训练策略分离。
+    参考自 HuggingFace TRL 实现。
+    
+    Args:
+        model_id (str): 模型标识
+        device (str): 目标设备，如 'cuda:0'
+        seed (int): 随机种子
+        gpu_memory_utilization (float): 显存占用比例
+        
+    Returns:
+        LLM: vLLM初始化好的对象
+    """
+    vllm_set_random_seed(seed)
+    
+    # Patch 1：让vllm假装“集群”只有1卡
+    world_size_patch = patch("torch.distributed.get_world_size", return_value=1)
+    # Patch 2：跳过vllm内部显存剖析的某个断言
+    profiling_patch = patch(
+        "vllm.worker.worker.Worker._assert_memory_footprint_increased_during_profiling",
+        return_value=None
+    )
+    with world_size_patch, profiling_patch:
+        llm = LLM(
+            model=model_id,
+            device=device,
+            dtype=torch.bfloat16,
+            enable_prefix_caching=True,
+            gpu_memory_utilization=gpu_memory_utilization,
+        )
+        return llm
+
+def load_policy_into_vllm_instance(policy: PreTrainedModel, llm: LLM):
+    """
+    把训练好的PyTorch模型参数装载进vLLM实例。
+    参考自 HuggingFace TRL。
+    
+    Args:
+        policy (PreTrainedModel): 已训练好的transformers模型
+        llm (LLM): vLLM实例
+        
+    Returns:
+        None
+    """
+    state_dict = policy.state_dict()
+    # 下面这一行依赖vllm当前内部实现，如有变动请根据vllm源代码调整！
+    llm_model = llm.llm_engine.model_executor.driver_worker.model_runner.model
+    llm_model.load_weights(state_dict.items())
+
+
+
+def evaluate_gsm8k(
+    model_id: str,
+    policy: PreTrainedModel,
+    tokenizer: AutoTokenizer,
+    prompt_strs: List[str],
+    output_strs: List[str],
+    save_path,
+    device="cuda:0",
+    seed=0,
+    gpu_memory_utilization=0.5
+):
+    llm = init_vllm(model_id, device, seed, gpu_memory_utilization)
+    sampling_params = SamplingParams(temperature=0.0, top_p=1.0, max_tokens=1024, stop=tokenizer.eos_token)
+    outputs = llm.generate(prompt_strs, sampling_params)
+    # import pdb; pdb.set_trace()
+
+    result_df = pd.DataFrame(columns=['Prompt', 'Generated_Text', 'Correct_Answer', 'Parsed_Answer', 'Parsed_Correct_Answer', 'Evaluation_Score', 'ParseFail'])
+    correct, parse_fail_cnt = 0, 0
+    for i, output in enumerate(outputs):
+        prompt = output.prompt
+        generated_text = output.outputs[0].text
+        correct_answer = output_strs[i]
+        
+        parsed_answer = parse_gsm8k_qwen_response(generated_text)
+        parsed_correct_answer = run_parse_gsm8k_response(correct_answer)
+        
+        parse_fail = parsed_answer == None
+        evaluation_score = 1 if parsed_correct_answer == parsed_answer else 0
+        if evaluation_score == 1:
+            correct += 1
+        if parse_fail:
+            parse_fail_cnt += 1
+        
+        
+        temp_df = pd.DataFrame({
+            'Prompt': [prompt],
+            'Generated_Text': [generated_text],
+            'Correct_Answer': [correct_answer],
+            'Parsed_Answer': [parsed_answer],
+            'Parsed_Correct_Answer': [parsed_correct_answer],
+            'Evaluation_Score': [evaluation_score],
+            'ParseFail': [parse_fail]
+        })
+        
+        result_df = pd.concat([result_df, temp_df], ignore_index=True)
+
+    print(f"Parse fail {parse_fail_cnt}/{len(outputs)}")
+    print(f"Correct {correct}/{len(outputs)} Accuracy is {round(correct/len(outputs)*100, 2)}%")
+
+    result_df.to_csv(save_path)
+
+    
+    return {
+        'parse_fail_rate': parse_fail_cnt / len(outputs),
+        'correct_rate': correct / len(outputs)
+    }
+
+
+
+def parse_gsm8k_qwen_response(
+    model_output: str,
+) -> str | None:
+    matches = re.findall(r'```output(.*?)```', model_output, re.DOTALL)
+    if matches:
+        res = matches[0].strip()
+    
+        return res
+    
+    return None
 
 
 def run_tokenize_prompt_and_output(

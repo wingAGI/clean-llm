@@ -17,12 +17,13 @@ def _explore_recursive(parent_name, element):
         for i, v in enumerate(element):
             mlflow.log_param(f'{parent_name}.{i}', v)
 
-def _to_device_and_compile(model):
-    if torch.backends.mps.is_available():
-        device = torch.device("mps")
-    elif torch.cuda.is_available():
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
+def _to_device_and_compile(model, device=None):
+    if not device:
+        if torch.backends.mps.is_available():
+            device = torch.device("mps")
+        elif torch.cuda.is_available():
+            device = torch.device("cuda")
+        else:
+            device = torch.device("cpu")
     model = model.to(device)
     return model, device

@@ -1,12 +1,20 @@
-model_path: huggingface_models/Qwen/Qwen3-0.6B # Qwen2.5-Math-1.5B
+mlflow_project: sft-gsm8k
+checkpoint_dir: ${hydra:run.dir}/checkpoint/
+csv_dir: ${hydra:run.dir}/csv/  # for saving evaluation results
+
+model_path: huggingface_models/Qwen/Qwen2.5-Math-1.5B
 dataset_path: "data_sft/openai/gsm8k"
-micro_batch_size: 4
+
+train_device: cuda:0
+eval_device: cuda:1
+
+micro_batch_size: 2
 gradient_accumulation_steps: 4
-eval_batch_size: 4
+eval_batch_size: 2
 num_epochs: 1
 learning_rate: 2e-5
 weight_decay: 0.01
-eval_steps: 10
+eval_steps: 1
 save_steps: 10
-output_dir: checkpoints_sft/
-mlflow_project: sft-gsm8k
+
+

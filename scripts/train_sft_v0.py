@@ -14,73 +14,11 @@ from clean_llm.train.sft import (
     run_tokenize_prompt_and_output,
     run_get_response_log_probs,
     run_sft_microbatch_train_step,
-    run_parse_gsm8k_response
+    run_parse_gsm8k_response,
+    evaluate_gsm8k
 )
 from clean_llm.utils import _to_device_and_compile, log_params_from_omegaconf_dict
 
-
-
-@torch.inference_mode()
-def evaluate(
-    model: AutoModelForCausalLM,
-    tokenizer: AutoTokenizer,
-    prompt_strs: List[str],
-    output_strs: List[str],
-    eval_batch_size: int,
-    device: torch.device,
-    max_new_tokens: int = 512,
-) -> Dict[str, float]:
-    """
-    Evaluate accuracy on GSM8K.
-
-    prompt_strs : list of str
-        The prompts fed to the model (already contain few-shot or CoT if any).
-    output_strs : list of str
-        The **expected** model completions (ground-truth answers) for the same problems.
-    eval_batch_size : int
-        Batch size for generation.
-    device : torch.device
-        Where to put the model / inputs.
-    """
-    assert len(prompt_strs) == len(output_strs)
-
-    correct = 0
-    total = 0
-
-    # Batch loop
-    for start in tqdm(range(0, len(prompt_strs), eval_batch_size)):
-        end = start + eval_batch_size
-        batch_prompts = prompt_strs[start:end]
-
-        # Tokenize
-        inputs = tokenizer(batch_prompts, return_tensors="pt", padding=True, truncation=False).to(device)
-
-        # Generate
-        gen_ids = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            pad_token_id=tokenizer.eos_token_id,
-        )
-
-        # Decode only the newly generated part
-        prompt_lens = inputs["input_ids"].shape[1]
-        generated = tokenizer.batch_decode(
-            gen_ids[:, prompt_lens:], skip_special_tokens=True
-        )
-
-        # Compare answers
-        for gen, gt in zip(generated, output_strs[start:end]):
-            pred = run_parse_gsm8k_response(gen)
-            gold = run_parse_gsm8k_response(gt)
-
-            if pred is not None and gold is not None and pred == gold:
-                correct += 1
-            total += 1
-
-    accuracy = correct / total
-    print(f"Accuracy: {accuracy}")
-
-    return {"accuracy": accuracy}
 
 
 def save_checkpoint(model, tokenizer, save_dir: Path):
@@ -94,12 +32,13 @@ def train(
     cfg: DictConfig,
     model: AutoModelForCausalLM,
     tokenizer: AutoTokenizer,
-    device: torch.device,
     train_prompt_strs: List[str],
     train_output_strs: List[str],
     test_prompt_strs: List[str],
     test_output_strs: List[str],
 ):
+    os.makedirs(cfg.checkpoint_dir, exist_ok=True)
+    os.makedirs(cfg.csv_dir, exist_ok=True)
     # 支持梯度累积
     micro_bs = cfg.micro_batch_size
     grad_accum_steps = cfg.gradient_accumulation_steps
@@ -122,7 +61,7 @@ def train(
         train_prompt_strs, train_output_strs, tokenizer
     )
     for k, v in train_inputs.items():
-        train_inputs[k] = v.to(device)
+        train_inputs[k] = v.to(cfg.train_device)
 
     # ------------ 训练状态 ------------
     optimizer = torch.optim.AdamW(
@@ -170,24 +109,24 @@ def train(
                 optimizer.zero_grad()
 
             # ------------ 日志 ------------
-            mlflow.log_metric("train_loss", loss.item(), step=step)
+            mlflow.log_metric("loss", loss.item(), step=step)
 
             # ------------ 评估 ------------
             if (step + 1) % eval_steps == 0:
-                eval_res = evaluate(
-                    model,
-                    tokenizer,
-                    test_prompt_strs,
-                    test_output_strs,
-                    cfg.eval_batch_size,
-                    device,
-                )
+                eval_res = evaluate_gsm8k(model_id=cfg.model_path,
+                            policy=model,
+                            tokenizer=tokenizer,
+                            prompt_strs=test_prompt_strs,
+                            output_strs=test_output_strs,
+                            save_path=os.path.join(cfg.csv_dir, f'step_{step}.csv'),
+                            device=cfg.eval_device
+                            )
                 mlflow.log_metrics(eval_res, step=step)
                 model.train()
 
             # ------------ 保存 ------------
             if (step + 1) % save_steps == 0:
-                ckpt_dir = Path(cfg.output_dir) / f"checkpoint-{step}"
+                ckpt_dir = Path(cfg.checkpoint_dir) / f"checkpoint-{step}"
                 save_checkpoint(model, tokenizer, ckpt_dir)
 
             step += 1
@@ -203,7 +142,7 @@ def train(
     pbar.close()
 
     # ------------ 训练结束 ------------
-    final_ckpt_dir = Path(cfg.output_dir) / "final"
+    final_ckpt_dir = Path(cfg.checkpoint_dir) / "final"
     save_checkpoint(model, tokenizer, final_ckpt_dir)
     mlflow.end_run()
     print("🎉 训练完成")
@@ -213,11 +152,11 @@ def train(
 @hydra.main(config_path="configs", config_name="sft_gsm8k", version_base=None)
 def main(cfg: DictConfig):
     model = AutoModelForCausalLM.from_pretrained(
-        cfg.model_path, torch_dtype=torch.bfloat16
+        cfg.model_path, torch_dtype=torch.bfloat16, device_map=cfg.train_device
     )
-    tokenizer = AutoTokenizer.from_pretrained(cfg.model_path)
-    model, device = _to_device_and_compile(model)
-    print(f"Load model from {cfg.model_path} on device {device}")
+    tokenizer = AutoTokenizer.from_pretrained(cfg.model_path, padding_side='left')
+    # model, device = _to_device_and_compile(model, cfg.train_device)
+    print(f"Load huggingface model from {cfg.model_path} on device {cfg.train_device}")
 
     dataset = load_dataset(cfg.dataset_path, "main")
     train_prompt_strs = [ex["question"] for ex in dataset["train"]]
@@ -225,16 +164,13 @@ def main(cfg: DictConfig):
     test_prompt_strs = [ex["question"] for ex in dataset["test"]]
     test_output_strs = [ex["answer"] for ex in dataset["test"]]
 
-    test_output_strs = test_output_strs
-    test_prompt_strs = test_prompt_strs
-
     print(f"Train samples: {len(train_prompt_strs)}, Test samples: {len(test_prompt_strs)}")
+
 
     train(
         cfg,
         model,
         tokenizer,
-        device,
         train_prompt_strs,
         train_output_strs,
         test_prompt_strs,
