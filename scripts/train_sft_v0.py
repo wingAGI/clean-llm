@@ -1,11 +1,10 @@
 import os
 import time
-from pathlib import Path
-from typing import Dict, List
-
-import mlflow
 import torch
 import hydra
+import mlflow
+from pathlib import Path
+from typing import Dict, List
 from omegaconf import DictConfig
 from tqdm.auto import tqdm
 from datasets import load_dataset
@@ -20,7 +19,6 @@ from clean_llm.train.sft import (
 from clean_llm.utils import _to_device_and_compile, log_params_from_omegaconf_dict
 
 
-from typing import List, Dict
 
 @torch.inference_mode()
 def evaluate(
@@ -50,17 +48,12 @@ def evaluate(
     total = 0
 
     # Batch loop
-    for start in range(0, len(prompt_strs), eval_batch_size):
+    for start in tqdm(range(0, len(prompt_strs), eval_batch_size)):
         end = start + eval_batch_size
         batch_prompts = prompt_strs[start:end]
 
         # Tokenize
-        inputs = tokenizer(
-            batch_prompts,
-            return_tensors="pt",
-            padding=True,
-            truncation=False,
-        ).to(device)
+        inputs = tokenizer(batch_prompts, return_tensors="pt", padding=True, truncation=False).to(device)
 
         # Generate
         gen_ids = model.generate(
@@ -84,7 +77,10 @@ def evaluate(
                 correct += 1
             total += 1
 
-    return {"accuracy": correct / total}
+    accuracy = correct / total
+    print(f"Accuracy: {accuracy}")
+
+    return {"accuracy": accuracy}
 
 
 def save_checkpoint(model, tokenizer, save_dir: Path):
@@ -183,7 +179,7 @@ def train(
                     tokenizer,
                     test_prompt_strs,
                     test_output_strs,
-                    micro_bs,
+                    cfg.eval_batch_size,
                     device,
                 )
                 mlflow.log_metrics(eval_res, step=step)
@@ -229,8 +225,8 @@ def main(cfg: DictConfig):
     test_prompt_strs = [ex["question"] for ex in dataset["test"]]
     test_output_strs = [ex["answer"] for ex in dataset["test"]]
 
-    test_output_strs = test_output_strs[:2]
-    test_prompt_strs = test_prompt_strs[:2]
+    test_output_strs = test_output_strs
+    test_prompt_strs = test_prompt_strs
 
     print(f"Train samples: {len(train_prompt_strs)}, Test samples: {len(test_prompt_strs)}")
 
